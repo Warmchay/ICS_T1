@@ -482,5 +482,5 @@ float sum_elements(float a[], unsigned len){
 - **B:** 因为数据类型为无符号型，无符号是不会有负数存在的，所以当s的长度小于t时，返回的会一直是1
 - **C:** 修改为`return s.length>t.length`即可
 
-
+## 
 
