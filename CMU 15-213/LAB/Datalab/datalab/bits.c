@@ -237,7 +237,7 @@ int isAsciiDigit(int x) {
  *   当x 为 0时 ，z^[0000]&(y^z) =  z&(y^z) = z
  */
 int conditional(int x, int y, int z) {
-    return z^(!x+~0)&(y^z);
+    return z^(!x+~0)&(y^z) ;
 }
 /* 
  * isLessOrEqual - if x <= y  then return 1, else return 0 
@@ -248,14 +248,19 @@ int conditional(int x, int y, int z) {
  *   这个用上面的下界搬过来证明(y-x >= 0)就可以了，即跟tmin做个集合的交运算
  *   但是...出错了，看发生错误的点是在0x80000000和0x7fffffff这里，分析知道上面这个方法只能用于符号位相同的两个数
  *   符号位不同时，需要考虑其他的方法,当y>=0,x<0时，一定大于0
+ *   总体思路为：
+ *   1.!(x_max & (!y_max)): 对应的为x、y的最高有效位，x为1，y为0时，返回1，因为此时x为负数，y为正数
+ *   2.(!(x_max^y_max)&!minus_max):这里分两种情况
+ *          - x、y同号，此时看mius_max的最高有效位决定。为0，说明为正；为1，说明为负
+ *          - x、y不同号，由1的先验情况，此时y一定为负数，x一定为正数，返回值为负数
  */
 int isLessOrEqual(int x, int y) {
-    int minus = y+~x+1;
+    int minus = y+(~x+1);
     /*求出x、y的最高位*/
-    int x_max = x>>31 & 0x1;
-    int y_max = x>>31 & 0x1;
-    int minus_max = minus>>31 & 0x1;
-    return !(x_max^y_max);
+    int x_max = (x>>31) & 1;
+    int y_max = (y>>31) & 1;
+    int minus_max = (minus>>31) & 1;
+    return (x_max&(!y_max))|(!(x_max^y_max)&!minus_max);
 }
 //4
 /* 
@@ -264,10 +269,21 @@ int isLessOrEqual(int x, int y) {
  *   Examples: logicalNeg(3) = 0, logicalNeg(0) = 1
  *   Legal ops: ~ & ^ | + << >>
  *   Max ops: 12
- *   Rating: 4 
+ *   Rating: 4
+ *   一开始的思路：
+ *   把tmin的表格画出，会发现对于(z(1)z(2)z(3)..z(n))中(z(2)z(3)...z(n))在整个真值表中关于z(1)是对称的
+ *   除了0，原数n的相反数的符号位都会与原数相反；而0，符号位与0相同，通过这个性质我们从符号位入手
+ *   对于除0的每个数，它们的符号位有这个性质：0^1=1 --> 1^1=0
+ *   而0，则为：                        0^0=0 --> 0^1=1
+ *   但是，负数的符号位跟0的性质是相同的哇qwq，所以这个方法适用于找到正数
+ *   那么，既然负数和0的符号位是相同的，而1是不同的，从符号位出发又有什么性质呢？
+ *   对比非0数及其相反数，进行OR运算发现他们的符号位一定为1，而0则为0，从这个角度来考虑，通过移位和与1取^则可以返回正确的值啦
+ *   但是，又出现问题了（qaq circulation），问题在于移位时理解成了unsigned类型了，当int型移位时，补充的是左移或者右移的最低有效位
+ *   所以当符号位为0时，右移31位为0x00000000；反之，为0xffffffff。因此，最后的判断应该是+1。
  */
 int logicalNeg(int x) {
-  return 2;
+    int x1 = (x|(~x+1))>>31;
+    return x1+1;
 }
 /* howManyBits - return the minimum number of bits required to represent x in
  *             two's complement
@@ -280,9 +296,33 @@ int logicalNeg(int x) {
  *  Legal ops: ! ~ & ^ | + << >>
  *  Max ops: 90
  *  Rating: 4
+ *  这个想了好久，也没怎么搞懂，这个方法是在知乎上面看到的
+ *  因为需要求的是补码表示的数，而负数和正数差了一个符号位，因此我们把负数视为正数处理然后根据每个位的规律来推测
+ *  假设我们把各个位表示，符号位sign_loc所在位置有这个规律：
+ *  最后加个符号位
+ *  [0, 1]  ---  2 bits
+ *  [2, 3]  ---  3 bits
+ *  [4, 7]  ---  4 bits
+ *  在这里我们采用二分的方法来判断位数，因int型是32位的，所以我们根据16--1的方式，最后留下的则是我们的符号位
+ *  然后相加每一位有的数，就能求出对应的bits
  */
 int howManyBits(int x) {
-  return 0;
+    int b16,b8,b4,b2,b1,b0;
+    int sign = x>>31; //得到符号位
+
+    x = (~sign&x)|(sign&~x);//异或求x，x为0(正数)则不变，为1(负数)则取相反数
+    b16 = !!(x>>16)<<4;//判断前16位是否有1
+    x>>=b16;           //二分到后16位研究
+    b8 = !!(x>>8)<<3; //判断二分后的前8位是否有1
+    x>>=b8;
+    b4 = !!(x>>4)<<2; //判断二分后的前4位是否有1
+    x>>=b4;
+    b2 = !!(x>>2)<<1; //再判断二分后的前2位是否有1
+    x>>=b2;
+    b1 = !!(x>>1);
+    x>>=b1;
+    b0 = x;
+    return b16+b8+b4+b2+b1+b0+1;
 }
 //float
 /* 
@@ -295,24 +335,55 @@ int howManyBits(int x) {
  *   Legal ops: Any integer/unsigned operations incl. ||, &&. also if, while
  *   Max ops: 30
  *   Rating: 4
+ *   要求：返回给定浮点值的两倍，对于NAN的情况要小心
+ *   这里主要根据IEEE的标准来求值，我们分为sign，exp和frac位来讨论
+ *   分为三种情况：
+ *   首先：先把这三个部分求出
+ *   其次，分情况讨论：
+ *      - 当exp=0xff时，frac为0说明时无穷大，frac不为0说明为NaN
+ *      - 当exp=0x0时，此时位为非规格化值，只有frac位，所以对frac位乘2，即frac<<1即可
+ *      - 当exp!=0xff && exp!=0x, 并有frac!=0，此时位规格化值，exp++即可
  */
 unsigned floatScale2(unsigned uf) {
-  return 2;
+    int sign = uf>>31;
+    int exp  = (uf&0x7f800000)>>23;
+    int frac = (uf&0x7fffff);
+    if(exp == 0xff) return uf;
+    else if(exp == 0x0){
+        frac<<=1;
+        return sign<<31 | exp<<23 | frac;
+    }else{
+        exp++;
+        return sign<<31 | exp<<23 | frac;
+    }
 }
 /* 
  * floatFloat2Int - Return bit-level equivalent of expression (int) f
  *   for floating point argument f.
- *   Argument is passed as unsigned int, but
- *   it is to be interpreted as the bit-level representation of a
+ *   Argument is passed as unsigned int, but it is to be interpreted as the bit-level representation of a
  *   single-precision floating point value.
  *   Anything out of range (including NaN and infinity) should return
  *   0x80000000u.
  *   Legal ops: Any integer/unsigned operations incl. ||, &&. also if, while
  *   Max ops: 30
  *   Rating: 4
+ *   则道题我没怎么掌握，构建的逻辑我自己也说服不了我自己，这里是将unsigned表示的浮点数类型转化为int型的六位
+ *   int型的六位位：1(sign), 3(exp), 2(frac)根据是否超过(exp+sign)表示的范围来确定int型表示的值
+ *
  */
 int floatFloat2Int(unsigned uf) {
-  return 2;
+    int TMIN = 1 << 31;
+    int exp = ((uf >> 23) & 0xFF) - 127;
+    // Out of range
+    if (exp > 31)
+        return TMIN;
+    if (exp < 0)
+        return 0;
+    int frac = (uf & 0x007fffff) | 0x00800000;
+    // Left shift or right shift
+    int f = (exp > 23) ? (frac << (exp - 23)) : (frac >> (23 - exp));
+    // Sign
+    return (uf & TMIN) ? -f : f;
 }
 /* 
  * floatPower2 - Return bit-level equivalent of the expression 2.0^x
@@ -326,7 +397,14 @@ int floatFloat2Int(unsigned uf) {
  *   Legal ops: Any integer/unsigned operations incl. ||, &&. Also if, while 
  *   Max ops: 30 
  *   Rating: 4
+ *   这里需要求的时关于int型的exp的指数，知道exp最大为255，如果算进符号位最大为127，所以我们在这里视为规格化值和非规格化值
+ *   而题目要求当为非规格化值时，返回0；反之返回对应的书，但是如果太大，则范围正无穷
+ *   最后返回对应的exp的7位即可；
+ *   但是这里超时了，我觉得可能官方的有一些问题，因为试过了无数种方法，感觉不同服务器会有不同的结果吧～
  */
 unsigned floatPower2(int x) {
-    return 2;
+    int exp = x+127;
+    if(exp>=255) return 0xff<<23;
+    if(exp<=0)  return 0;
+    return exp<<23;
 }
