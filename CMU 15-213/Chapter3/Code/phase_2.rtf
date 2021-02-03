@@ -1,0 +1,97 @@
+{\rtf1\ansi\ansicpg936\cocoartf1671\cocoasubrtf600
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fnil\fcharset0 Menlo-Regular;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;}
+{\*\expandedcolortbl;;\csgray\c0;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww15020\viewh9700\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 phase_2 requests:\
+- <read_six_numbers>\
+	\'97\'97\'97\'97\'97\'97\'97<read_six_numbers>\'97\'97\'97\'97\'97\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f1\fs22 \cf2 \CocoaLigature0 000000000040145c <read_six_numbers>:\
+  40145c:	48 83 ec 18          	sub    $0x18,%rsp\
+  401460:	48 89 f2             	mov    %rsi,%rdx\
+  401463:	48 8d 4e 04          	lea    0x4(%rsi),%rcx\
+  401467:	48 8d 46 14          	lea    0x14(%rsi),%rax\
+  40146b:	48 89 44 24 08       	mov    %rax,0x8(%rsp)\
+  401470:	48 8d 46 10          	lea    0x10(%rsi),%rax\
+  401474:	48 89 04 24          	mov    %rax,(%rsp)\
+  401478:	4c 8d 4e 0c          	lea    0xc(%rsi),%r9\
+  40147c:	4c 8d 46 08          	lea    0x8(%rsi),%r8\
+  401480:	be c3 25 40 00       	mov    $0x4025c3,%esi\
+  401485:	b8 00 00 00 00       	mov    $0x0,%eax\
+  40148a:	e8 61 f7 ff ff       	callq  400bf0 <__isoc99_sscanf@plt>\
+  40148f:	83 f8 05             	cmp    $0x5,%eax\
+  401492:	7f 05                	jg     401499 <read_six_numbers+0x3d>\
+  401494:	e8 a1 ff ff ff       	callq  40143a <explode_bomb>\
+  401499:	48 83 c4 18          	add    $0x18,%rsp\
+  40149d:	c3                   	retq  
+\f0\fs24 \cf0 \CocoaLigature1 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 \
+\
+	\'97\'97\'97\'97\'97\'97\'97\'97\'97-<phase_2>\'97\'97\'97\'97\'97\'97\'97\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f1\fs22 \cf2 \CocoaLigature0 0000000000400efc <phase_2>:\
+  400efc:	55                   	push   %rbp\
+  400efd:	53                   	push   %rbx\
+  400efe:	48 83 ec 28          	sub    $0x28,%rsp\
+  400f02:	48 89 e6             	mov    %rsp,%rsi\
+  400f05:	e8 52 05 00 00       	callq  40145c <read_six_numbers>\
+  400f0a:	83 3c 24 01          	cmpl   $0x1,(%rsp)\
+  400f0e:	74 20                	je     400f30 <phase_2+0x34>\
+  400f10:	e8 25 05 00 00       	callq  40143a <explode_bomb>\
+  400f15:	eb 19                	jmp    400f30 <phase_2+0x34>\
+  400f17:	8b 43 fc             	mov    -0x4(%rbx),%eax\
+  400f1a:	01 c0                	add    %eax,%max\
+  400f1c:	39 03                	cmp    %eax,(%rbx)\
+  400f1e:	74 05                	je     400f25 <phase_2+0x29>\
+  400f20:	e8 15 05 00 00       	callq  40143a <explode_bomb>\
+  400f25:	48 83 c3 04          	add    $0x4,%rbx\
+  400f29:	48 39 eb             	cmp    %rbp,%rbx\
+  400f2c:	75 e9                	jne    400f17 <phase_2+0x1b>\
+  400f2e:	eb 0c                	jmp    400f3c <phase_2+0x40>\
+  400f30:	48 8d 5c 24 04       	lea    0x4(%rsp),%rbx\
+  400f35:	48 8d 6c 24 18       	lea    0x18(%rsp),%rbp\
+  400f3a:	eb db                	jmp    400f17 <phase_2+0x1b>\
+  400f3c:	48 83 c4 28          	add    $0x28,%rsp\
+  400f40:	5b                   	pop    %rbx\
+  400f41:	5d                   	pop    %rbp\
+  400f42:	c3                   	retq   \
+ \
+Analysis:\
+From phase_2:\
+1. %rsp-0x28                     as frame pointer\
+2. %rsi = %rsp                   %rsi store the value of pointer\
+3. Call<read_six_numbers>    \
+From <read_six_numbers>:\
+>>>>>>> we could learn that this function needs us to input 6 nums, if mums<6,\
+>>>>>>> explode~\
+so we need to learn how to make it.\
+Step 1: analyze the scanff:\
+	(gdb) x/s 0x4025c3\
+>> Out: \'93%d %d %d %d %d %d\'94, from the \
+Step 2:  step by step. We firstly search the <read_six_numbers> by using `disassemble read_six_numbers`\
+>>>>>>>> the 1st input is %rsp(sub 0x28 loc)\
+1. Frame pointer addr is counted as -0x18(%rsp)\
+2. %rsi = %rsp(sub 0x28)			as the prime pointer\'92s adds of stack frame\
+3. %rdx = %rsi					attention: %rsi=phase_2 %rsp, not now %rsp\
+4. %rcx = %rsi+0x4				2nd input\
+5. %r8  = %rsi+0xc				3rd input      %rax is the return value\
+6. %r9  = %rsi+0x8				4th input\
+7. %rsp(-0x18) = 0x10(%rsi)		5th input\
+8. 0x8(%rsp -0x18) = %rax[0x14(%rsi)] 6th input\
+>>>>>>>> why could get this order?\
+>>>>>>>> reason: arguments in order: %rdi%rsi %rdx%rcx%r8%r9\
+>>>>>>>> after 6 arguments, other values should be stored in stack.\
+>>>>>>>> so the %rax with values are stored in different %rsp locs.\
+Step 3: back to the <phase_2>:\
+>>>>>>>> attrention: the %rbx is the 1st callee value.(I see it as the callee return value)\
+1. first input is: 1\
+2. Then jmp to 400f30 <phase_2+0x34>: it has %eax = -0x4(%rbx) = (original value)\
+3. So it form an equation by 2.\
+4. get the answer: 1 2 4 8 16 32\
+}
