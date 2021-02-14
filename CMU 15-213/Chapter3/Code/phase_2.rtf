@@ -73,7 +73,8 @@ From <read_six_numbers>:\
 so we need to learn how to make it.\
 Step 1: analyze the scanff:\
 	(gdb) x/s 0x4025c3\
->> Out: \'93%d %d %d %d %d %d\'94, from the \
+>> Out: \'93%d %d %d %d %d %d\'94, actually I don\'92t know how to get this add\'92s information.\
+\
 Step 2:  step by step. We firstly search the <read_six_numbers> by using `disassemble read_six_numbers`\
 >>>>>>>> the 1st input is %rsp(sub 0x28 loc)\
 1. Frame pointer addr is counted as -0x18(%rsp)\

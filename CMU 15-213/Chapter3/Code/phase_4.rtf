@@ -1,0 +1,115 @@
+{\rtf1\ansi\ansicpg936\cocoartf1671\cocoasubrtf600
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fnil\fcharset0 Menlo-Regular;\f2\fnil\fcharset0 Menlo-Bold;
+\f3\fnil\fcharset134 PingFangSC-Regular;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;}
+{\*\expandedcolortbl;;\csgray\c0;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww14860\viewh14260\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 (gdb) disas phase_4\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f1\fs22 \cf2 \CocoaLigature0    0x000000000040100c <+0>:	sub    $0x18,%rsp\
+   0x0000000000401010 <+4>:	lea    0xc(%rsp),%rcx\
+   0x0000000000401015 <+9>:	lea    0x8(%rsp),%rdx\
+   0x000000000040101a <+14>:	mov    $0x4025cf,%esi\
+   0x000000000040101f <+19>:	mov    $0x0,%eax\
+   0x0000000000401024 <+24>:	callq  0x400bf0 <__isoc99_sscanf@plt>\
+   0x0000000000401029 <+29>:	cmp    $0x2,%eax\
+   0x000000000040102c <+32>:	jne    0x401035 <phase_4+41>\
+   0x000000000040102e <+34>:	cmpl   $0xe,0x8(%rsp)\
+   0x0000000000401033 <+39>:	jbe    0x40103a <phase_4+46>\
+   0x0000000000401035 <+41>:	callq  0x40143a <explode_bomb>\
+   0x000000000040103a <+46>:	mov    $0xe,%edx\
+   0x000000000040103f <+51>:	mov    $0x0,%esi\
+   0x0000000000401044 <+56>:	mov    0x8(%rsp),%edi\
+   0x0000000000401048 <+60>:	callq  0x400fce <func4>\
+   0x000000000040104d <+65>:	test   %eax,%eax\
+   0x000000000040104f <+67>:	jne    0x401058 <phase_4+76>\
+   0x0000000000401051 <+69>:	cmpl   $0x0,0xc(%rsp)\
+   0x0000000000401056 <+74>:	je     0x40105d <phase_4+81>\
+   0x0000000000401058 <+76>:	callq  0x40143a <explode_bomb>\
+   0x000000000040105d <+81>:	add    $0x18,%rsp\
+   0x0000000000401061 <+85>:	retq\
+\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\
+(gdb) func4:\
+   0x0000000000400fce <+0>:	sub    $0x8,%rsp\
+   0x0000000000400fd2 <+4>:	mov    %edx,%eax\
+   0x0000000000400fd4 <+6>:	sub    %esi,%eax\
+   0x0000000000400fd6 <+8>:	mov    %eax,%ecx\
+   0x0000000000400fd8 <+10>:	shr    $0x1f,%ecx\
+   0x0000000000400fdb <+13>:	add    %ecx,%eax\
+   0x0000000000400fdd <+15>:	sar    %eax\
+   0x0000000000400fdf <+17>:	lea    
+\f2\b \cf2 (%rax,%rsi,1),%ecx
+\f1\b0 \cf2 \
+   0x0000000000400fe2 <+20>:	cmp    %edi,%ecx\
+   0x0000000000400fe4 <+22>:	jle    0x400ff2 <func4+36>\
+   0x0000000000400fe6 <+24>:	lea    -0x1(%rcx),%edx\
+   0x0000000000400fe9 <+27>:	callq  0x400fce <func4>\
+   0x0000000000400fee <+32>:	add    %eax,%eax\
+   0x0000000000400ff0 <+34>:	jmp    0x401007 <func4+57>\
+   0x0000000000400ff2 <+36>:	mov    $0x0,%eax\
+   0x0000000000400ff7 <+41>:	cmp    %edi,%ecx\
+   0x0000000000400ff9 <+43>:	jge    0x401007 <func4+57>\
+   0x0000000000400ffb <+45>:	lea    0x1(%rcx),%esi\
+   0x0000000000400ffe <+48>:	callq  0x400fce <func4>\
+   0x0000000000401003 <+53>:	lea    0x1(%rax,%rax,1),%eax\
+   0x0000000000401007 <+57>:	add    $0x8,%rsp\
+   0x000000000040100b <+61>:	retq  \
+\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\
+\
+> First, find the numbers of registers:\
+   0x0000000000401010 <+4>:	lea    0xc(%rsp),%rcx\
+   0x0000000000401015 <+9>:	lea    0x8(%rsp),%rdx\
+>> then, find input info:\
+x/s 0x4025cf\
+0x4025cf:	"%d %d"\
+>> so we need input two nums: %rdx
+\f3 \'a1\'b80x8(%rsp)\'a1\'b9
+\f1 , %rcx
+\f3 \'a1\'b80xc(%rsp)\'a1\'b9\
+\
+> Find info about these two registers:\
+
+\f1    0x000000000040102e <+34>:	cmpl   $0xe,0x8(%rsp)\
+   0x0000000000401033 <+39>:	jbe    0x40103a <phase_4+46>\
+> jbe: jump below or equal, so the %rdx is less than $0xe\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 \CocoaLigature1 Analysis on func4:\
+\
+\
+> Premise: get register %edx=0xe, %esi=0x0, %rdi=0xe                                   \
+Start !\
+1. Allocate stack\
+2. %eax = %edx = 0xe\
+3. %eax = %eax-%esi=0xe\
+3. %ecx = %eax = 0xe\
+4. %ecx >> 0x1f = 0x0\
+5. %eax = %eax+%ecx = 0xe = 01110(b)\
+6. %eax >> 1 = 00111(b) = 0x7\
+7. %ecx = %rax+%rsi = 0x7+0x0 = 0x7\
+8.  0xe = %rdi > 0x7\
+9. greater than %ecx\
+10. Goto func4 again, the %edx now is 0x7-0x1 = 0x6.\
+11. so we could learn that func4 actually is a recursion function\
+      And we need to find the limitation to get %rdx\
+>>> Actually , here I forget how to explain the \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f1\fs22 \cf2 \CocoaLigature0  0x0000000000400fdf <+17>:	lea    
+\f2\b \cf2 (%rax,%rsi,1),%ecx\
+>>>
+\f1\b0 \cf2  but before I try to solve this guess, I exam the func\
+>>> again. Then I find if the recursion goes to the end, it\
+>>> will turn to <func4+36>,the recursion executes again.\
+>>> and last it will result on lea    0x1(%rax,%rax,1),%eax\
+>>> so I guess that the terminal solution is %rdx=7\
+>>> guess what? It\'92s the right answer, but it just a guess~\
+>>> and we going to explain in details.after I finish cache lab\
+>>> because this lab let me tired, lol.\
+\
+> so the right answer is 7 0\
+> another way: you could try 15 possible team of %rdx with 0(%rcx = 0)~\
+ }

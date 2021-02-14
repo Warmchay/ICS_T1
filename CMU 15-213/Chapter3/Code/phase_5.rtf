@@ -1,0 +1,103 @@
+{\rtf1\ansi\ansicpg936\cocoartf1671\cocoasubrtf600
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fnil\fcharset0 Menlo-Regular;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;}
+{\*\expandedcolortbl;;\csgray\c0;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww12520\viewh14180\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 (gdb) disas phase_5:\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f1\fs22 \cf2 \CocoaLigature0    0x0000000000401062 <+0>:	push   %rbx\
+   0x0000000000401063 <+1>:	sub    $0x20,%rsp\
+   0x0000000000401067 <+5>:	mov    %rdi,%rbx\
+   0x000000000040106a <+8>:	mov    %fs:0x28,%rax\
+   0x0000000000401073 <+17>:	mov    %rax,0x18(%rsp)\
+   0x0000000000401078 <+22>:	xor    %eax,%eax\
+   0x000000000040107a <+24>:	callq  0x40131b <string_length>\
+   0x000000000040107f <+29>:	cmp    $0x6,%eax\
+   0x0000000000401082 <+32>:	je     0x4010d2 <phase_5+112>\
+   0x0000000000401084 <+34>:	callq  0x40143a <explode_bomb>\
+   0x0000000000401089 <+39>:	jmp    0x4010d2 <phase_5+112>\
+   0x000000000040108b <+41>:	movzbl (%rbx,%rax,1),%ecx\
+   0x000000000040108f <+45>:	mov    %cl,(%rsp)\
+   0x0000000000401092 <+48>:	mov    (%rsp),%rdx\
+   0x0000000000401096 <+52>:	and    $0xf,%edx\
+   0x0000000000401099 <+55>:	movzbl 0x4024b0(%rdx),%edx\
+   0x00000000004010a0 <+62>:	mov    %dl,0x10(%rsp,%rax,1)\
+   0x00000000004010a4 <+66>:	add    $0x1,%rax\
+   0x00000000004010a8 <+70>:	cmp    $0x6,%rax\
+   0x00000000004010ac <+74>:	jne    0x40108b <phase_5+41>\
+   0x00000000004010ae <+76>:	movb   $0x0,0x16(%rsp)\
+   0x00000000004010b3 <+81>:	mov    $0x40245e,%esi\
+   0x00000000004010b8 <+86>:	lea    0x10(%rsp),%rdi\
+   0x00000000004010bd <+91>:	callq  0x401338 <strings_not_equal>\
+   0x00000000004010c2 <+96>:	test   %eax,%eax\
+   0x00000000004010c4 <+98>:	je     0x4010d9 <phase_5+119>\
+   0x00000000004010c6 <+100>:	callq  0x40143a <explode_bomb>\
+   0x00000000004010cb <+105>:	nopl   0x0(%rax,%rax,1)\
+   0x00000000004010d0 <+110>:	jmp    0x4010d9 <phase_5+119>\
+   0x00000000004010d2 <+112>:	mov    $0x0,%eax\
+   0x00000000004010d7 <+117>:	jmp    0x40108b <phase_5+41>\
+   0x00000000004010d9 <+119>:	mov    0x18(%rsp),%rax\
+   0x00000000004010de <+124>:	xor    %fs:0x28,%rax\
+   0x00000000004010e7 <+133>:	je     0x4010ee <phase_5+140>\
+   0x00000000004010e9 <+135>:	callq  0x400b30 <__stack_chk_fail@plt>\
+   0x00000000004010ee <+140>:	add    $0x20,%rsp\
+--Type <RET> for more, q to quit, c to continue wi\
+\
+Analysis on phase_5:\
+We divide these phase into several segmentation:\
+\'97\'97\'97 1 \'97\'97\'97\
+   0x0000000000401062 <+0>:	push   %rbx\
+   0x0000000000401063 <+1>:	sub    $0x20,%rsp\
+   0x0000000000401067 <+5>:	mov    %rdi,%rbx\
+   0x000000000040106a <+8>:	mov    %fs:0x28,%rax\
+   0x0000000000401073 <+17>:	mov    %rax,0x18(%rsp)\
+   0x0000000000401078 <+22>:	xor    %eax,%eax\
+   0x000000000040107a <+24>:	callq  0x40131b <string_length>\
+   0x000000000040107f <+29>:	cmp    $0x6,%eax\
+   0x0000000000401082 <+32>:	je     0x4010d2 <phase_5+112>\
+   0x0000000000401084 <+34>:	callq  0x40143a <explode_bomb>\
+   0x0000000000401089 <+39>:	jmp    0x4010d2 <phase_5+112>\
+\
+input string addr is stored in \'91%rdi = %rbx = &input\'92\
+This string\'92s length must be 6 from <string_length>\
+Then we turn to part 2<phase_5+0x112>\
+\'97\'97\'97\'97\'97\'97\'97\'97\'97\
+\
+\'97\'97\'97\'97\'97 2 \'97\'97\'97\'97\'97\
+in <phase_5+0x112>, %eax\'92s value is 0;then back to <phase_5+41>\
+<phase_5+41>\
+   0x000000000040108b <+41>:	movzbl (%rbx,%rax,1),%ecx\
+   0x000000000040108f <+45>:	mov    %cl,(%rsp)\
+   0x0000000000401092 <+48>:	mov    (%rsp),%rdx\
+   0x0000000000401096 <+52>:	and    $0xf,%edx\
+   0x0000000000401099 <+55>:	movzbl 0x4024b0(%rdx),%edx\
+   0x00000000004010a0 <+62>:	mov    %dl,0x10(%rsp,%rax,1)\
+   0x00000000004010a4 <+66>:	add    $0x1,%rax\
+   0x00000000004010a8 <+70>:	cmp    $0x6,%rax\
+   0x00000000004010ac <+74>:	jne    0x40108b <phase_5+41>\
+we could learn that this is a circulation let %rax from 0 to 5;\
+Until %rax=6;\
+From:\
+   0x0000000000401096 <+52>:	and    $0xf,%edx\
+To learn: %edx remain 4 low bits data, cause $0xf & %edx[array]\
+So return value is 0x4024b0+%rdx[arrayNum]\
+Check the addr by \'91x/s 0x4024b0\'92: \'91maduiersnfotvbylSo you think you can stop the bomb with ctrl-c, do you?\'92\
+\
+\'97\'97\'97\'97\'97\'97 3 \'97\'97\'97\'97\'97\'97\
+   0x00000000004010ae <+76>:	movb   $0x0,0x16(%rsp)\
+   0x00000000004010b3 <+81>:	mov    $0x40245e,%esi\
+   0x00000000004010b8 <+86>:	lea    0x10(%rsp),%rdi\
+   0x00000000004010bd <+91>:	callq  0x401338 <strings_not_equal>\
+Last we need to cmp two strings are the %rsp[10]~%rsp[15]\
+(%rsp)'s values are determined by (%rsp), let\'92s examine the %esi firstly\
+> (gdb) x/s 0x40245e\
+\'93flyers\'94\
+and here this \'93flyers\'94 is the input addr, we find its corrspoinding locs\
+in \'91x/s 0x4024b0\'92, then return relative ASCII coding members.\
+so count the nums in input string:\
+\'91f\'92:9, \'91l\'92:15, \'91y\'92:14, \'91e\'92:5, \'91r\'92:6, \'92s\'92:7\
+Because \'91a\'92\'92s ascii coding num is 64, let uping num increased by 64\
+Get: IONEFG}
