@@ -152,7 +152,7 @@ int bitXor(int x, int y) {
  *   Legal ops: ! ~ & ^ | + << >>
  *   Max ops: 4
  *   Rating: 1
- *   要求的是32位整数补码的最小值，即符号位为1，其余为全为0
+ *   要求的是32位整数补码的最小值，即符号位为1，其余位全为0
  */
 int tmin(void) {
 
